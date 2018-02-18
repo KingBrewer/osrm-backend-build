@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Getting latest gb file
+      - wget http://download.geofabrik.de/europe/great-britain-latest.osm.pbf
+      - echo Running osrm-extract
+      - docker run -t -v $(pwd):/data osrm/osrm-backend osrm-extract -p /opt/car.lua /data/great-britain-latest.osm.pbf
+      - echo Running osrm-partition
+      - docker run -t -v $(pwd):/data osrm/osrm-backend osrm-partition /data/great-britain-latest.osrm
+      - echo Running osrm-customize
+      - docker run -t -v $(pwd):/data osrm/osrm-backend osrm-customize /data/great-britain-latest.osrm
+      - echo Done
+  post_build:
+    commands:
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - great-britain-latest.osrm
